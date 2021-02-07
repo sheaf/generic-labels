@@ -1,0 +1,73 @@
+cabal-version: 3.0
+name: generic-labels
+version: 0.1.0
+build-type: Simple
+
+common common
+
+  build-depends:
+    base
+      >= 4.14 && < 4.17
+
+  default-language:
+    Haskell2010
+
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wno-unticked-promoted-constructors
+
+  default-extensions:
+    DataKinds
+    FlexibleContexts
+    FlexibleInstances
+    FunctionalDependencies
+    NoStarIsType
+    PolyKinds
+    ScopedTypeVariables
+    StandaloneKindSignatures
+    TypeApplications
+    TypeFamilyDependencies
+    TypeOperators
+
+common generic-lens-core
+
+  build-depends:
+    generic-lens-core
+      >= 2.0 && < 2.2
+
+library
+
+  import:
+    common, generic-lens-core
+
+  hs-source-dirs:
+    src
+
+  exposed-modules:
+    Data.Generic.Labels
+    Data.Generic.Labels.Internal
+    Data.Generic.Labels.Internal.Errors
+    Data.Label
+
+  other-modules:
+    Data.Type.Error
+    Data.Type.List
+    Data.Type.Multiplicity
+
+library test
+
+  import:
+    common
+
+  visibility:
+    private
+
+  build-depends:
+    generic-labels
+
+  hs-source-dirs:
+    test
+
+  exposed-modules:
+    Test
