@@ -1,4 +1,6 @@
+{-# LANGUAGE MagicHash #-}
 {-# LANGUAGE RoleAnnotations #-}
+{-# LANGUAGE ViewPatterns #-}
 
 {-|
 Module: Data.Label
@@ -24,7 +26,7 @@ handle re-ordering fields when needed, see "Data.Generic.Labels".
 
 module Data.Label
   ( (:=)
-      ( (:=) )
+      ( .., (:=) )
   , Label
       ( Label )
   ) where
@@ -32,12 +34,14 @@ module Data.Label
 -- base
 import Data.Kind
   ( Type )
+import GHC.Exts
+  ( proxy# )
 import GHC.OverloadedLabels
   ( IsLabel
     ( fromLabel )
   )
 import GHC.TypeLits
-  ( Symbol )
+  ( Symbol, KnownSymbol, symbolVal' )
 
 --------------------------------------------------------------------------------
 -- Field labels.
@@ -52,10 +56,31 @@ data Label ( lbl :: Symbol ) = Label
 type role Label nominal
 instance ( lbl' ~ lbl ) => IsLabel lbl ( Label lbl' ) where
   fromLabel = Label
+instance KnownSymbol lbl => Show ( Label lbl ) where
+  show _ = "#" <> symbolVal' @lbl proxy#
 
 -- | A type with a 'Label'.
 --
 -- With @OverloadedLabels@:
 --
 -- @ ( #bar := Just 'c' ) :: ( "bar" := Maybe Char ) @
-data ( lbl :: Symbol ) := ( a :: Type ) = Label lbl := a
+newtype ( lbl :: Symbol ) := ( a :: Type ) = Labelled { unLabel :: a }
+
+instance ( KnownSymbol lbl, Show a ) => Show ( lbl := a ) where
+  showsPrec p ( Labelled a ) =
+    showParen ( p > 6 )
+      ( showString ( show ( Label @lbl ) <> " := " ) . showsPrec 7 a )
+
+infix 6 :=
+-- | Add a 'Label' to a type.
+--
+-- With @OverloadedLabels@:
+--
+-- @ ( #bar := Just 'c' ) :: ( "bar" := Maybe Char ) @
+pattern (:=) :: Label lbl -> a -> lbl := a
+pattern lbl := a <- ( ( \ ( Labelled a ) -> LabelPair Label a ) -> LabelPair lbl a )
+  where
+    _ := a = Labelled a
+{-# COMPLETE (:=) #-}
+
+data LabelPair lbl a = LabelPair !( Label lbl ) !a

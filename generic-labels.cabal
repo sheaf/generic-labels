@@ -19,10 +19,12 @@ common common
 
   default-extensions:
     DataKinds
+    DerivingStrategies
     FlexibleContexts
     FlexibleInstances
     FunctionalDependencies
     NoStarIsType
+    PatternSynonyms
     PolyKinds
     ScopedTypeVariables
     StandaloneKindSignatures
@@ -53,21 +55,37 @@ library
   other-modules:
     Data.Type.Error
     Data.Type.List
+    Data.Type.Maybe
     Data.Type.Multiplicity
 
-library test
+test-suite generic-labels-test
 
   import:
     common
 
-  visibility:
-    private
+  type:
+    detailed-0.9
 
   build-depends:
-    generic-labels
+    , generic-labels
+    , Cabal
+        >= 3.0 && < 3.5
+    , inspection-testing
+        >= 0.4 && < 0.5
 
   hs-source-dirs:
     test
 
-  exposed-modules:
-    Test
+  test-module:
+    Inspection
+
+  other-modules:
+    ShouldCompile.Adapt.RRR
+    ShouldCompile.Adapt.TTR
+    ShouldCompile.Adapt.TTT
+    ShouldCompile.Inject.Basic
+    ShouldCompile.Project.Basic
+    ShouldCompile.Project.Polymorphic
+   
+  ghc-options:
+    -O1

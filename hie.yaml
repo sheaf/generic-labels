@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "generic-labels"
+    - path: "./test"
+      component: "generic-labels-test"

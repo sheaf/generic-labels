@@ -1,8 +1,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Data.Generic.Labels.Internal
-  ( GInject(..), GProject(..) )
+  ( GAdapt(..) )
   where
 
 -- base
@@ -13,116 +15,55 @@ import GHC.TypeLits
   ( Symbol )
 
 -- generic-lens-core
-import Data.Generics.Internal.Families
-  ( HasTotalTypeP )
+--import Data.Generics.Internal.Families
+--  ( HasTotalTypeP )
 import Data.Generics.Product.Internal.GLens
   ( Eval, GLens(..), GLens', TyFun )
 import Data.Generics.Internal.Profunctor.Lens
   ( view )
+import Data.Generics.Internal.Profunctor.Iso 
+  ( Iso, iso, kIso )
 
 -- generic-labels
 import Data.Label
-  ( (:=) )
+  ( (:=)(..), Label(..) )
+import Data.Generic.Labels.Internal.Errors
+  ( AdaptLabelMessage )
 
 --------------------------------------------------------------------------------
--- Generics machinery for 'Inject'.
+-- Generics machinery for 'Adapt'.
 
-type GInject :: ( Type -> Type ) -> ( Type -> Type ) -> Constraint
-class GInject small big where
-  ginject :: small p -> big p -> big p
+type GAdapt :: ( Type -> Type ) -> ( Type -> Type ) -> ( Type -> Type ) -> Constraint
+class GAdapt args opt all where
+  gAdapt :: args p -> opt p -> all p
 
-instance ( GInject small big1, GInject small big2 ) => GInject small ( big1 :*: big2 ) where
-  ginject small ( big1 :*: big2 ) = ginject small big1 :*: ginject small big2
+instance ( GAdapt args opt all1, GAdapt args opt all2 ) => GAdapt args opt ( all1 :*: all2 ) where
+  gAdapt args opt = gAdapt args opt :*: gAdapt args opt
 
-instance GInject small big => GInject small ( C1 c big ) where
-  ginject small ( M1 big ) = M1 ( ginject small big )
+instance GAdapt args opt all => GAdapt args opt ( C1 c all ) where
+  gAdapt args opt = M1 $ gAdapt args opt
 
-instance GInject small big => GInject small ( D1 c big ) where
-  ginject small ( M1 big ) = M1 ( ginject small big )
-
-
-instance {-# OVERLAPPING #-}
-         ( leaf ~ M1 m meta ( Rec0 ( lbl := big ) )
-         , GInjectLeaf small leaf ( HasTotalLabelP lbl small )
-         )
-      => GInject small ( M1 m meta ( Rec0 ( lbl := big ) ) ) where
-  ginject = ginjectLeaf @_ @_ @( HasTotalLabelP lbl small )
-
-{-
-instance
-         ( leaf ~ S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 big )
-         , GInjectLeaf small leaf ( HasTotalLabelP lbl small )
-         )
-      => GInject small ( S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 big ) ) where
-  ginject = ginjectLeaf @_ @_ @( HasTotalLabelP lbl small )
--}
-
-instance {-# OVERLAPPABLE #-}
-         ( leaf ~ M1 m meta ( Rec0 big )
-         , GInjectLeaf small leaf ( HasTotalTypeP big small )
-         )
-      => GInject small ( M1 m meta ( Rec0 big ) ) where
-  ginject = ginjectLeaf @_ @_ @( HasTotalTypeP big small )
-
-
-type GInjectLeaf :: ( Type -> Type ) -> ( Type -> Type ) -> Maybe Type -> Constraint
-class GInjectLeaf small big mbLeaf where
-  ginjectLeaf :: small p -> big p -> big p
-
-instance {-# OVERLAPPING #-}
-     ( GLens' ( HasTotalLabelPSym lbl ) small ( lbl := leaf ), ty ~ leaf )
-  => GInjectLeaf small ( M1 m meta ( Rec0 ( lbl := leaf ) ) ) ( Just ty ) where
-  ginjectLeaf small _ = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) small
-
-{-
-instance
-     ( GLens' ( HasTotalLabelPSym lbl ) small leaf, ty ~ leaf )
-  => GInjectLeaf small ( S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 leaf ) ) ( Just ty ) where
-  ginjectLeaf small _ = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) small
--}
-
-instance {-# OVERLAPPABLE #-}
-     ( GLens' ( HasTotalTypePSym leaf ) small leaf, ty ~ leaf )
-  => GInjectLeaf small ( M1 m meta ( Rec0 leaf ) ) ( Just ty ) where
-  ginjectLeaf small _ = M1 . K1 $ view ( glens @( HasTotalTypePSym leaf ) ) small
-
-instance GInjectLeaf small ( M1 m meta ( Rec0 leaf ) ) Nothing where
-  ginjectLeaf = const id
-
---------------------------------------------------------------------------------
--- Generics machinery for 'Project'.
-
-type GProject :: ( Type -> Type ) -> ( Type -> Type ) -> Constraint
-class GProject big small where
-  gproject :: big p -> small p
-
-instance ( GProject big small1, GProject big small2 ) => GProject big ( small1 :*: small2 ) where
-  gproject big = gproject big :*: gproject big
-
-instance ( GProject big small ) => GProject big ( C1 c small ) where
-  gproject = M1 . gproject
-
-instance ( GProject big small ) => GProject big ( D1 c small ) where
-  gproject = M1 . gproject
+instance GAdapt args opt all => GAdapt args opt ( D1 c all ) where
+  gAdapt args opt = M1 $ gAdapt args opt
 
 instance  {-# OVERLAPPING #-}
-         ( GLens' ( HasTotalLabelPSym lbl ) big ( lbl := small ) )
-      => GProject big ( M1 m meta ( Rec0 ( lbl := small ) ) )
+         ( GLens' ( HasTotalLabelPSym lbl ) ( args :*: opts ) all )
+      => GAdapt args opts ( M1 m meta ( Rec0 ( lbl := all ) ) )
       where
-  gproject big = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) big
+  gAdapt args opt = M1 . K1 . ( Label @lbl := ) $ view ( glens @( HasTotalLabelPSym lbl ) ) ( args :*: opt )
+
+instance ( GLens' ( HasTotalLabelPSym lbl ) ( args :*: opts ) all )
+      => GAdapt args opts ( S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 all ) )
+      where
+  gAdapt args opt = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) ( args :*: opt )
 
 {-
-instance ( GLens' ( HasTotalLabelPSym lbl ) big small )
-      => GProject big ( S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 small ) )
-      where
-  gproject big = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) big
--}
-
 instance {-# OVERLAPPABLE #-}
-         ( GLens' ( HasTotalTypePSym small ) big small )
-      => GProject big ( M1 m meta ( Rec0 small ) )
+         ( GLens' ( HasTotalTypePSym all ) ( args :*: opts ) all )
+      => GAdapt args opts ( M1 m meta ( Rec0 all ) )
       where
-  gproject big = M1 . K1 $ view ( glens @( HasTotalTypePSym small ) ) big
+  gAdapt args opt = M1 . K1 $ view ( glens @( HasTotalTypePSym all ) ) ( args :*: opt )
+-}
 
 --------------------------------------------------------------------------------
 -- Generic lens machinery.
@@ -164,6 +105,24 @@ type HasTotalLabelPSym :: Symbol -> TyFun ( Type -> Type ) ( Maybe Type )
 data HasTotalLabelPSym lbl f mbTy
 type instance Eval ( HasTotalLabelPSym lbl ) f = HasTotalLabelP lbl f
 
-type HasTotalTypePSym :: Type -> TyFun ( Type -> Type ) ( Maybe Type )
-data HasTotalTypePSym ty f mbTy
-type instance Eval ( HasTotalTypePSym ty ) f = HasTotalTypeP ty f
+class LabelIso mbLbl1 mbLbl2 s t a b | mbLbl1 s -> a, mbLbl2 t -> b where
+  lblIso :: Iso s t a b
+instance
+  ( AdaptLabelMessage lbl ( Just a1 ) Nothing b1
+  , a1 ~ a, b1 ~ b
+  ) => LabelIso ( Just lbl ) ( Just lbl ) ( lbl := a1 ) ( lbl := b1 ) a b where
+  lblIso = iso ( \ ( _ := a ) -> a ) ( Label @lbl := )
+  {-# INLINE lblIso #-}
+instance LabelIso Nothing Nothing a b a b where
+  lblIso = id
+  {-# INLINE lblIso #-}
+
+type GetLabel :: Type -> Maybe Symbol
+type family GetLabel ty where
+ GetLabel ( lbl := _ ) = Just lbl
+ GetLabel _            = Nothing
+
+instance {-# OVERLAPPABLE #-} LabelIso ( GetLabel a' ) ( GetLabel b' ) a' b' a b
+      => GLens pred ( K1 r a' ) ( K1 r b' ) a b where
+  glens = kIso . lblIso @( GetLabel a' ) @( GetLabel b' )
+  {-# INLINE glens #-}

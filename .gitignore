@@ -1,1 +1,3 @@
 dist-newstyle/
+*.log
+cabal.project.local
