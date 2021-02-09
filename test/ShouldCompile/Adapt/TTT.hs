@@ -2,6 +2,8 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TemplateHaskell #-}
 
+{-# OPTIONS_GHC -O1 #-}
+
 module ShouldCompile.Adapt.TTT where
 
 -- inspection-testing

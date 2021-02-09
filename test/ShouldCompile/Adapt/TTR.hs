@@ -3,6 +3,8 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TemplateHaskell #-}
 
+{-# OPTIONS_GHC -O1 #-}
+
 module ShouldCompile.Adapt.TTR where
 
 -- base

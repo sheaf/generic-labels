@@ -1,6 +1,8 @@
 cabal-version: 3.0
 name:          generic-labels
 version:       0.1.0.0
+author:        Sam Derbyshire
+maintainer:    Sam Derbyshire
 build-type:    Simple
 license:       BSD-3-Clause
 homepage:      https://github.com/sheaf/generic-labels
@@ -8,7 +10,6 @@ bug-reports:   https://github.com/sheaf/generic-labels/issues
 category:      Data, Generics, Records
 extra-source-files:
   changelog.md
-  readme.md
 
 synopsis: Generically extract and replace collections of record fields
 
@@ -43,6 +44,8 @@ description:
     xi_plus_bd_makes_ibxd :: XI x -> ( "b" := Bool, "d" := Double ) -> IBXD x
     xi_plus_bd_makes_ibxd = adapt
   @
+
+  See also the library's [readme](https://github.com/sheaf/generic-labels/blob/master/readme.md).
 
 source-repository head
   type:     git
@@ -135,6 +138,4 @@ test-suite generic-labels-test
     ShouldCompile.Project.Basic
     ShouldCompile.Project.PolymorphicR
     ShouldCompile.Project.PolymorphicT
-   
-  ghc-options:
-    -O1
+

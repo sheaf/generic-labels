@@ -3,6 +3,8 @@
 {-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE TemplateHaskell #-}
 
+{-# OPTIONS_GHC -O1 #-}
+
 module ShouldCompile.Inject.PolymorphicR where
 
 -- base

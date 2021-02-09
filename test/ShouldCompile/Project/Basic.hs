@@ -1,6 +1,8 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TemplateHaskell #-}
 
+{-# OPTIONS_GHC -O1 #-}
+
 module ShouldCompile.Project.Basic where
 
 -- inspection-testing
