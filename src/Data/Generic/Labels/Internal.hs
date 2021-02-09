@@ -4,6 +4,21 @@
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+{-|
+Module: Data.Generic.Labels.Internal
+
+Internal module containing the generics machinery to provide the instances
+exported by this library, using 'Data.Generics.Product.Internal.GLens.GLens'.
+
+__Warnings__:
+
+  * contains an incoherent instance for 'GAdapt' which is used to
+    prioritise built-in record field names over explicitly labelled types;
+  * contains an orphan overlapping instance for @generic-lens@'s 'Data.Generics.Product.Internal.GLens.GLens'
+    typeclass, which is used to additionally unwrap through labelled types.
+
+-}
+
 module Data.Generic.Labels.Internal
   ( GAdapt(..) )
   where
@@ -32,6 +47,7 @@ import Data.Generic.Labels.Internal.Errors
 --------------------------------------------------------------------------------
 -- Generics machinery for 'Adapt'.
 
+-- | Generic version of 'Data.Generic.Labels.Adapt'.
 type GAdapt :: ( Type -> Type ) -> ( Type -> Type ) -> ( Type -> Type ) -> Constraint
 class GAdapt args opt all where
   gAdapt :: args p -> opt p -> all p
