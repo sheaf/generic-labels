@@ -1,3 +1,4 @@
+{-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE UndecidableInstances #-}
 
 module Data.Type.Error

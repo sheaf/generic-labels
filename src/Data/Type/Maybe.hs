@@ -1,3 +1,5 @@
+{-# LANGUAGE StandaloneKindSignatures #-}
+
 module Data.Type.Maybe
   ( CatMaybes )
   where
