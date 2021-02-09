@@ -216,9 +216,9 @@ data Leaves =
 
 type CollectLeaves :: ( Type -> Type ) -> Leaves
 type family CollectLeaves f where
-  CollectLeaves ( M1 _ _ ( Rec0 ( lbl := ty ) ) ) =
-    'Leaves '[ '( lbl, ty ) ] '[]
   CollectLeaves ( S1 ( MetaSel ( Just lbl ) _ _ _ ) ( Rec0 ty ) ) =
+    'Leaves '[ '( lbl, ty ) ] '[]
+  CollectLeaves ( M1 _ _ ( Rec0 ( lbl := ty ) ) ) =
     'Leaves '[ '( lbl, ty ) ] '[]
   CollectLeaves ( M1 _ _ ( Rec0 ty ) ) =
     'Leaves '[] '[ ty ]
@@ -226,6 +226,8 @@ type family CollectLeaves f where
     CollectLeaves a
   CollectLeaves ( l :*: r ) =
     MergeLeaves ( CollectLeaves l ) ( CollectLeaves r )
+  CollectLeaves ( l :+: r ) =
+    IntersectLeaves ( CollectLeaves l ) ( CollectLeaves r )
   CollectLeaves U1 =
     'Leaves '[] '[]
   CollectLeaves V1 =
@@ -386,6 +388,10 @@ type family ShowWhich which where
 type MergeLeaves :: Leaves -> Leaves ->Leaves
 type family MergeLeaves as bs where
   MergeLeaves ( 'Leaves l1 u1 ) ( 'Leaves l2 u2 ) = 'Leaves ( l1 :++: l2 ) ( u1 :++: u2 )
+
+type IntersectLeaves :: Leaves -> Leaves ->Leaves
+type family IntersectLeaves as bs where
+  IntersectLeaves ( 'Leaves l1 u1 ) ( 'Leaves l2 u2 ) = 'Leaves ( l1 `Intersect` l2 ) ( u1 `Intersect` u2 )
 
 --------------------------------------------------------------------------------
 -- Dummy class instances to de-clutter type signatures

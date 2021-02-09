@@ -16,8 +16,10 @@ import qualified ShouldCompile.Adapt.RRR as Adapt.RRR
 import qualified ShouldCompile.Adapt.TTR as Adapt.TTR
 import qualified ShouldCompile.Adapt.TTT as Adapt.TTT
 import qualified ShouldCompile.Inject.Basic as Inject.Basic
+import qualified ShouldCompile.Inject.PolymorphicR  as Inject.PolymorphicR 
 import qualified ShouldCompile.Project.Basic as Project.Basic
-import qualified ShouldCompile.Project.Polymorphic as Project.Polymorphic
+import qualified ShouldCompile.Project.PolymorphicR as Project.PolymorphicR
+import qualified ShouldCompile.Project.PolymorphicT as Project.PolymorphicT
 
 --------------------------------------------------------------------------------
 -- Inspection tests.
@@ -31,8 +33,10 @@ inspectionResults =
   , ( "Adapt.TTR", Adapt.TTR.result )
   , ( "Adapt.TTT", Adapt.TTT.result )
   , ( "Inject.Basic", Inject.Basic.result )
-  , ( "ShouldCompile.Project.Basic", Project.Basic.result )
-  , ( "ShouldCompile.Project.Polymorphic", Project.Polymorphic.result )
+  , ( "Inject.PolymorphicR", Inject.PolymorphicR.result )
+  , ( "Project.Basic", Project.Basic.result )
+  , ( "Project.PolymorphicR", Project.PolymorphicR.result )
+  , ( "Project.PolymorphicT", Project.PolymorphicT.result )
   ]
 
 --------------------------------------------------------------------------------

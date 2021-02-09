@@ -18,6 +18,7 @@ import Data.Generic.Labels
 --------------------------------------------------------------------------------
 
 test, manual :: ( "b" := Float, "c" := Int, "a" := Double ) -> ( "a" := Double, "b" := Float )
+
 test = project
 
 manual ( float, _, double ) = ( double, float )

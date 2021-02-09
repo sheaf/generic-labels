@@ -1,7 +1,39 @@
 cabal-version: 3.0
 name: generic-labels
-version: 0.1.0
+version: 0.1.0.0
 build-type: Simple
+
+description:
+
+  Handle various conversion operations between record types,
+  such as projecting out a collection of fields from a record,
+  or plugging in values for a subset of the fields of a larger record.
+
+  Works both with built-in Haskell records, as well as explicitly labelled types
+  @ ( #label := value ) :: ( "label" := Type ) @.
+
+  Project out a smaller record using @project@:
+  
+  @
+    data IBXD x = IBXD { i :: Int, b :: Bool, x :: x, d :: Double }
+      deriving stock Generic
+    data XI x = XI { x :: c, i :: Int }
+      deriving stock Generic
+  @
+  
+  Plug in a subset of fields using @inject@:
+
+  @
+    xi_into_ibxd :: XI x -> IBXD x -> IBXD x
+    xi_into_ibxd = inject
+  @
+  
+  Create a record out of two collections of arguments using @adapt@:
+  
+  @
+    xi_plus_bd_makes_ibxd :: XI x -> ( "b" := Bool, "d" := Double ) -> IBXD x
+    xi_plus_bd_makes_ibxd = adapt
+  @
 
 common common
 
@@ -85,7 +117,8 @@ test-suite generic-labels-test
     ShouldCompile.Adapt.TTT
     ShouldCompile.Inject.Basic
     ShouldCompile.Project.Basic
-    ShouldCompile.Project.Polymorphic
+    ShouldCompile.Project.PolymorphicR
+    ShouldCompile.Project.PolymorphicT
    
   ghc-options:
     -O1

@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE TemplateHaskell #-}
 
-module ShouldCompile.Project.Polymorphic where
+module ShouldCompile.Project.PolymorphicT where
 
 -- inspection-testing
 import Test.Inspection
@@ -16,6 +16,8 @@ import Data.Generic.Labels
   ( Project(..) )
 
 --------------------------------------------------------------------------------
+
+default ()
 
 test, manual :: ( "b" := Int, "c" := Char, "a" := Float )
 

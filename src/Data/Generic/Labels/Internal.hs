@@ -15,8 +15,6 @@ import GHC.TypeLits
   ( Symbol )
 
 -- generic-lens-core
---import Data.Generics.Internal.Families
---  ( HasTotalTypeP )
 import Data.Generics.Product.Internal.GLens
   ( Eval, GLens(..), GLens', TyFun )
 import Data.Generics.Internal.Profunctor.Lens
@@ -46,7 +44,12 @@ instance GAdapt args opt all => GAdapt args opt ( C1 c all ) where
 instance GAdapt args opt all => GAdapt args opt ( D1 c all ) where
   gAdapt args opt = M1 $ gAdapt args opt
 
-instance  {-# OVERLAPPING #-}
+-- | This instance is INCOHERENT because we assume that no type variable (say @all0@)
+-- will later be instantiated to a labelled type @lbl := all@.
+--
+-- The end result is that, when we have both a built-in Haskell record field name
+-- as well as an explicit label, we prioritise the built-in record field name over the label.
+instance {-# INCOHERENT #-}
          ( GLens' ( HasTotalLabelPSym lbl ) ( args :*: opts ) all )
       => GAdapt args opts ( M1 m meta ( Rec0 ( lbl := all ) ) )
       where
@@ -56,14 +59,6 @@ instance ( GLens' ( HasTotalLabelPSym lbl ) ( args :*: opts ) all )
       => GAdapt args opts ( S1 ( MetaSel ( Just lbl ) p f b ) ( Rec0 all ) )
       where
   gAdapt args opt = M1 . K1 $ view ( glens @( HasTotalLabelPSym lbl ) ) ( args :*: opt )
-
-{-
-instance {-# OVERLAPPABLE #-}
-         ( GLens' ( HasTotalTypePSym all ) ( args :*: opts ) all )
-      => GAdapt args opts ( M1 m meta ( Rec0 all ) )
-      where
-  gAdapt args opt = M1 . K1 $ view ( glens @( HasTotalTypePSym all ) ) ( args :*: opt )
--}
 
 --------------------------------------------------------------------------------
 -- Generic lens machinery.
@@ -80,10 +75,14 @@ type family m1 `Or` m2 where
 
 type HasTotalLabelP :: Symbol -> ( Type -> Type ) -> Maybe Type
 type family HasTotalLabelP lbl f where
-  HasTotalLabelP lbl ( S1 _ ( K1 _ ( lbl := ty ) ) ) =
-    Just ty
   HasTotalLabelP lbl ( S1 ( MetaSel ( Just lbl ) _ _ _ ) ( Rec0 ty ) ) = 
     Just ty
+  HasTotalLabelP lbl ( S1 ( MetaSel ( Just lbl' ) _ _ _ ) _ ) = 
+    Nothing
+  HasTotalLabelP lbl ( S1 _ ( K1 _ ( lbl := ty ) ) ) =
+    Just ty
+  HasTotalLabelP lbl ( S1 _ ( K1 _ ( lbl' := _ ) ) ) =
+    Nothing
   HasTotalLabelP lbl ( l :*: r ) =
     HasTotalLabelP lbl l `Or` HasTotalLabelP lbl r
   HasTotalLabelP lbl ( l :+: r ) =
