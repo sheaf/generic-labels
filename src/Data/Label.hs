@@ -68,10 +68,10 @@ newtype ( lbl :: Symbol ) := ( a :: Type ) = Labelled { unLabel :: a }
 
 instance ( KnownSymbol lbl, Show a ) => Show ( lbl := a ) where
   showsPrec p ( Labelled a ) =
-    showParen ( p > 6 )
-      ( showString ( show ( Label @lbl ) <> " := " ) . showsPrec 7 a )
+    showParen ( p > 1 )
+      ( showString ( show ( Label @lbl ) <> " := " ) . showsPrec 2 a )
 
-infix 6 :=
+infix 1 :=
 -- | Add a 'Label' to a type.
 --
 -- With @OverloadedLabels@:

@@ -115,6 +115,9 @@ test-suite generic-labels-test
     ShouldCompile.Adapt.RRR
     ShouldCompile.Adapt.TTR
     ShouldCompile.Adapt.TTT
+    ShouldCompile.Adapt.SingletonArg
+    ShouldCompile.Adapt.SingletonArgOpt
+    ShouldCompile.Adapt.SingletonOpt
     ShouldCompile.Inject.Basic
     ShouldCompile.Project.Basic
     ShouldCompile.Project.PolymorphicR

@@ -134,11 +134,30 @@ instance {-# OVERLAPPING #-} ( a ~ b, o ~ b )
   uncheckedAdapt = const
 
 instance {-# OVERLAPPING #-}
+    ( Generic all
+    , argFld ~ S1 ( MetaSel ( Just lbl1 ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 a )
+    , optFld ~ S1 ( MetaSel ( Just lbl2 ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 o )
+    , GAdapt argFld optFld ( Rep all )
+    )
+  => UncheckedAdapt ( lbl1 := a ) ( lbl2 := o ) all where
+  uncheckedAdapt ( _ := arg ) ( _ := opt ) =
+    to $ gAdapt ( M1 ( K1 arg ) :: argFld x ) ( M1 ( K1 opt ) :: optFld x )
+
+instance
+    ( Generic opt, Generic all
+    , argFld ~ S1 ( MetaSel ( Just lbl ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 a )
+    , GAdapt argFld ( Rep opt ) ( Rep all )
+    )
+  => UncheckedAdapt ( lbl := a ) opt all where
+  uncheckedAdapt ( _ := arg ) opt =
+    to $ gAdapt ( M1 ( K1 arg ) :: argFld x ) ( from opt )
+
+instance {-# OVERLAPPING #-}
     ( Generic args, Generic all
-    , optFld ~ S1 ( MetaSel ( Just lbl ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 opt )
+    , optFld ~ S1 ( MetaSel ( Just lbl ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 o )
     , GAdapt ( Rep args ) optFld ( Rep all )
     )
-  => UncheckedAdapt args ( lbl := opt ) all where
+  => UncheckedAdapt args ( lbl := o ) all where
   uncheckedAdapt args ( _ := opt ) =
     to $ gAdapt ( from args ) ( M1 ( K1 opt ) :: optFld x )
 

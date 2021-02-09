@@ -108,6 +108,42 @@ type family CheckAdapt args opt all where
     ( AdaptLabelMessage lbl ( Just a ) ( Just o ) b, a ~ b, o ~ b )
   CheckAdapt ( lbl := a ) opt ( lbl := b ) =
     ( AdaptLabelMessage lbl ( Just a ) Nothing b, a ~ b )
+
+  CheckAdapt ( lbl1 := arg ) ( lbl2 := opt ) all =
+    ( ProperAdapt arg opt all
+        ( CollectLeaves ( S1 ( MetaSel ( Just lbl1 ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 arg ) ) )
+        ( CollectLeaves ( S1 ( MetaSel ( Just lbl2 ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 opt ) ) )
+        ( CollectLeaves ( Rep all ) )
+    , ErrorIfAmbiguous ( Rep all )
+        ( TypeError
+          (    Text "No instance for " :<>: ShowType ( Generic all )
+          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt ( lbl1 := arg ) ( lbl2 := opt ) all )
+          )
+        )
+        ( () :: Constraint )
+    )
+
+  CheckAdapt ( lbl := arg ) opt all =
+    ( ProperAdapt arg opt all
+        ( CollectLeaves ( S1 ( MetaSel ( Just lbl ) NoSourceUnpackedness NoSourceStrictness DecidedLazy ) ( Rec0 arg ) ) )
+        ( CollectLeaves ( Rep opt ) )
+        ( CollectLeaves ( Rep all ) )
+    , ErrorIfAmbiguous ( Rep opt )
+        ( TypeError
+          (    Text "No instance for " :<>: ShowType ( Generic opt )
+          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt ( lbl := arg ) opt all )
+          )
+        )
+        ( () :: Constraint )
+    , ErrorIfAmbiguous ( Rep all )
+        ( TypeError
+          (    Text "No instance for " :<>: ShowType ( Generic all )
+          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt ( lbl := arg ) opt all )
+          )
+        )
+        ( () :: Constraint )
+    )
+
   CheckAdapt args ( lbl := opt ) all =
     ( ProperAdapt args opt all
         ( CollectLeaves ( Rep args ) )
@@ -116,14 +152,14 @@ type family CheckAdapt args opt all where
     , ErrorIfAmbiguous ( Rep args )
         ( TypeError
           (    Text "No instance for " :<>: ShowType ( Generic args )
-          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt args opt all )
+          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt args ( lbl := opt ) all )
           )
         )
         ( () :: Constraint )
     , ErrorIfAmbiguous ( Rep all )
         ( TypeError
           (    Text "No instance for " :<>: ShowType ( Generic all )
-          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt args opt all )
+          :$$: Text "arising from the constraint " :<>: ShowType ( Adapt args ( lbl := opt ) all )
           )
         )
         ( () :: Constraint )

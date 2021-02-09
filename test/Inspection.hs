@@ -15,6 +15,9 @@ import qualified Test.Inspection as Inspection
 import qualified ShouldCompile.Adapt.RRR as Adapt.RRR
 import qualified ShouldCompile.Adapt.TTR as Adapt.TTR
 import qualified ShouldCompile.Adapt.TTT as Adapt.TTT
+import qualified ShouldCompile.Adapt.SingletonArg    as Adapt.SingletonArg
+import qualified ShouldCompile.Adapt.SingletonArgOpt as Adapt.SingletonArgOpt
+import qualified ShouldCompile.Adapt.SingletonOpt    as Adapt.SingletonOpt
 import qualified ShouldCompile.Inject.Basic as Inject.Basic
 import qualified ShouldCompile.Inject.PolymorphicR  as Inject.PolymorphicR 
 import qualified ShouldCompile.Project.Basic as Project.Basic
@@ -32,6 +35,9 @@ inspectionResults =
   [ ( "Adapt.RRR", Adapt.RRR.result )
   , ( "Adapt.TTR", Adapt.TTR.result )
   , ( "Adapt.TTT", Adapt.TTT.result )
+  , ( "Adapt.SingletonArg"   , Adapt.SingletonArg.result    )
+  , ( "Adapt.SingletonArgOpt", Adapt.SingletonArgOpt.result )
+  , ( "Adapt.SingletonOpt"   , Adapt.SingletonOpt.result    )
   , ( "Inject.Basic", Inject.Basic.result )
   , ( "Inject.PolymorphicR", Inject.PolymorphicR.result )
   , ( "Project.Basic", Project.Basic.result )
