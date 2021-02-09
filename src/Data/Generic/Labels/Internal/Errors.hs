@@ -8,7 +8,7 @@
 Module: Data.Generic.Labels.Internal.Errors
 
 Internal module providing custom type errors for invalid uses of
-'Data.Generic.Labels.Adapt', 'Data.Generic.Labels.inject', 'Data.Generic.Labels.project'.
+'Data.Generic.Labels.adapt', 'Data.Generic.Labels.inject', 'Data.Generic.Labels.project'.
 
 Consider for instance trying to project a source record onto a smaller target record,
 but the source record is missing one of the fields:

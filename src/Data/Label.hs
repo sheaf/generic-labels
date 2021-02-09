@@ -63,7 +63,7 @@ instance KnownSymbol lbl => Show ( Label lbl ) where
 --
 -- With @OverloadedLabels@:
 --
--- @ ( #bar := Just 'c' ) :: ( "bar" := Maybe Char ) @
+-- @ ( #bar := Just \'c\' ) :: ( "bar" := Maybe Char ) @
 newtype ( lbl :: Symbol ) := ( a :: Type ) = Labelled { unLabel :: a }
 
 instance ( KnownSymbol lbl, Show a ) => Show ( lbl := a ) where
@@ -76,7 +76,7 @@ infix 1 :=
 --
 -- With @OverloadedLabels@:
 --
--- @ ( #bar := Just 'c' ) :: ( "bar" := Maybe Char ) @
+-- @ ( #bar := Just \'c\' ) :: ( "bar" := Maybe Char ) @
 pattern (:=) :: Label lbl -> a -> lbl := a
 pattern lbl := a <- ( ( \ ( Labelled a ) -> LabelPair Label a ) -> LabelPair lbl a )
   where
